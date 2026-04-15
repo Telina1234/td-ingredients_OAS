@@ -1,0 +1,110 @@
+openapi: 3.0.3
+
+info:
+  title: Ingredient API
+  description: API de gestion des ingrédients
+  version: 1.0.0
+
+paths:
+
+  /ingredients/{id}:
+    get:
+      summary: Obtenir un ingrédient par ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Ingrédient trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+
+        "404":
+          description: Ingredient non trouvé
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Ingredient.id=1 is not found"
+
+
+  /ingredients/{id}/stock:
+    get:
+      summary: Obtenir le stock d’un ingrédient à un moment donné
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+        - name: at
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+
+        - name: unit
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [PCS, KG, L]
+
+      responses:
+        "200":
+          description: Stock trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockValue'
+
+        "400":
+          description: Paramètre manquant
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Either mandatory query parameter 'at' or 'unit' is not provided."
+
+        "404":
+          description: Ingredient non trouvé
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Ingredient.id=1 is not found"
+
+
+components:
+
+  schemas:
+
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+          enum: [VEGETABLE, ANIMAL, MARINE, DAIRY, OTHER]
+        price:
+          type: number
+          format: double
+
+    StockValue:
+      type: object
+      properties:
+        quantity:
+          type: number
+        unit:
+          type: string
+          enum: [PCS, KG, L]
